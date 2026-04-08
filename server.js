@@ -10,8 +10,6 @@ if (!supabaseUrl || !supabaseKey) {
   console.error("Missing Supabase URL or Key in Environment Variables!");
 }
 
-const supabase = createClient(supabaseUrl, supabaseKey);
-
 const app = express();
 app.use(express.json());
 app.use(express.static('public')); // ให้เข้าหน้าเว็บจากโฟลเดอร์ public ได้
