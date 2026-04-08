@@ -10,9 +10,11 @@
     </style>
 </head>
 <body>
-    <div id="display">
-        <h1>รอรับข้อความ...</h1>
-    </div>
+    <div id="display-container">
+    <img id="ad-image" src="" style="max-width: 100%; height: auto; display: none;">
+    
+    <h1 id="ad-message">รอรับข้อความ...</h1>
+</div>
 
     <script>
     const SB_URL = 'https://zossrpbtdszdntgbqcfe.supabase.co';
@@ -33,13 +35,18 @@ const channels = supabaseClient.channel('custom-all-channel')
 )
        .subscribe();
 
-    function displayImage(url, msg) {
+function displayImage(url, msg) {
     const imgElement = document.getElementById('ad-image');
     const msgElement = document.getElementById('ad-message');
     
-    imgElement.src = url;
-    msgElement.innerText = msg;
-    // อาจเพิ่มคำสั่งโชว์ Div หรือ Animation ตรงนี้
+    if (imgElement && msgElement) {
+        imgElement.src = url;
+        imgElement.style.display = 'block'; // แสดงรูปภาพ (เผื่อตอนแรกซ่อนไว้)
+        msgElement.innerText = msg;
+        console.log("แสดงรูปเรียบร้อยแล้ว:", url);
+    } else {
+        console.error("หา Element 'ad-image' หรือ 'ad-message' ไม่เจอในหน้า HTML");
+    }
 }
     </script>
 </body>
