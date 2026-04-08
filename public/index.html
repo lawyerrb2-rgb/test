@@ -57,9 +57,9 @@
 
 <script>
     // ใส่ค่าจริงจาก Supabase ของคุณที่นี่
-    const SUPABASE_URL = 'https://zossrpbtdszdntgbqcfe.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_7vCBrHCs7cx3uVDDT_SHJA_HVlc1xt9';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const SB_URL = 'https://zossrpbtdszdntgbqcfe.supabase.co';
+    const SB_KEY = 'sb_publishable_7vCBrHCs7cx3uVDDT_SHJA_HVlc1xt9';
+    const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
     async function startProcess() {
         const fileInput = document.getElementById('imageInput');
@@ -77,7 +77,7 @@
         // 1. อัปโหลดรูปไปที่ Supabase Storage
         const file = fileInput.files[0];
         const fileName = `${Date.now()}_${file.name}`;
-        const { data: storageData, error: storageError } = await supabase.storage
+        const { data: storageData, error: storageError } = await supabaseClient.storage
             .from('ads-images') // ชื่อ Bucket ที่คุณสร้างไว้
             .upload(fileName, file);
 
@@ -87,11 +87,11 @@
         }
 
         // 2. ดึง Public URL ของรูป
-        const { data: urlData } = supabase.storage.from('ads-images').getPublicUrl(fileName);
+        const { data: urlData } = supabaseClient.storage.from('ads-images').getPublicUrl(fileName);
         const imageUrl = urlData.publicUrl;
 
         // 3. บันทึกข้อมูลลงตาราง (สถานะ pending)
-        const { data: adData, error: dbError } = await supabase
+        const { data: adData, error: dbError } = await supabaseClient
             .from('ads_display')
             .insert([{ 
                 image_url: imageUrl, 
