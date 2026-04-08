@@ -2,6 +2,16 @@ const express = require('express');
 const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
 
+// ตรวจสอบว่ามีค่าครบไหมก่อนเริ่มรัน
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error("Missing Supabase URL or Key in Environment Variables!");
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
 const app = express();
 app.use(express.json());
 app.use(express.static('public')); // ให้เข้าหน้าเว็บจากโฟลเดอร์ public ได้
