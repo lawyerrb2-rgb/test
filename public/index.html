@@ -221,25 +221,8 @@ button:hover {
         // ใส่ค่าจริงจาก Supabase ของคุณที่นี่
     const SB_URL = 'https://zossrpbtdszdntgbqcfe.supabase.co';
     const SB_KEY = 'sb_publishable_7vCBrHCs7cx3uVDDT_SHJA_HVlc1xt9';
-    const supabaseClient = supabase.createClient('SB_URL', 'SB_KEY');
-    
-    function previewFile() {
-    const preview = document.getElementById('preview-img');
-    const file = document.getElementById('imageInput').files[0];
-    const reader = new FileReader();
 
-    reader.onloadend = function () {
-        preview.src = reader.result;
-        preview.style.display = 'block';
-    }
-
-    if (file) {
-        reader.readAsDataURL(file);
-    } else {
-        preview.src = "";
-        preview.style.display = 'none';
-    }
-}
+    const supabaseClient = supabase.createClient('https://zossrpbtdszdntgbqcfe.supabase.co', 'sb_publishable_7vCBrHCs7cx3uVDDT_SHJA_HVlc1xt9');
 
     async function startProcess() {
         const fileInput = document.getElementById('imageInput');
@@ -291,7 +274,23 @@ button:hover {
         statusText.innerText = "สร้างรายการสำเร็จ!";
         showQR(adData.id, duration);
     }
+    function previewFile() {
+    const preview = document.getElementById('preview-img');
+    const file = document.getElementById('imageInput').files[0];
+    const reader = new FileReader();
 
+    reader.onloadend = function () {
+        preview.src = reader.result;
+        preview.style.display = 'block';
+    }
+
+    if (file) {
+        reader.readAsDataURL(file);
+    } else {
+        preview.src = "";
+        preview.style.display = 'none';
+    }
+}
     function showQR(adId, duration) {
         document.getElementById('qr-container').style.display = 'block';
         document.getElementById('amount-text').innerText = (duration == 10 ? 20 : duration == 30 ? 50 : 90);
