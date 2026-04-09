@@ -93,7 +93,6 @@ function displayImage(url, msg) {
 
         let countdownInterval;
 
-// ฟังก์ชันดึงข้อมูลคิวทั้งหมด
 async function updateQueue() {
     // 1. หาโฆษณาที่กำลังฉาย (มี started_at และยังไม่หมดเวลา)
     const nowIso = new Date().toISOString();
@@ -101,14 +100,14 @@ async function updateQueue() {
         .from('ads_display')
         .select('*')
         .eq('status', 'paid')
-        .lte('start_time', nowIso) // เริ่มไปแล้ว
-        .gt('end_time', nowIso)   // ยังไม่หมดอายุ
+        .lte('started_at', nowIso) // เริ่มไปแล้ว
+        .gt('expires_at', nowIso)   // ยังไม่หมดอายุ
         .limit(1);
 
     if (currentAds && currentAds.length > 0) {
         // มีรูปกำลังฉายอยู่ -> แสดงรูปและเริ่มนับถอยหลัง
         displayImage(currentAds[0].image_url, currentAds[0].message);
-        startTimer(currentAds[0].end_time);
+        startTimer(currentAds[0].expires_at);
     } else {
         // ไม่มีรูปฉายอยู่ หรือรูปเก่าหมดเวลาแล้ว -> ไปดึงคิวใหม่มาเริ่ม
         checkAndStartNextQueue();
@@ -121,7 +120,7 @@ async function checkAndStartNextQueue() {
         .from('ads_display')
         .select('*')
         .eq('status', 'paid')
-        .is('start_time', null)
+        .is('started_at', null)
         .order('created_at', { ascending: true })
         .limit(1);
 
@@ -135,8 +134,8 @@ async function checkAndStartNextQueue() {
         const { error } = await supabaseClient
             .from('ads_display')
             .update({ 
-                start_time: start.toISOString(), 
-                end_time: expire.toISOString() 
+                started_at: start.toISOString(), 
+                expires_at: expire.toISOString() 
             })
             .eq('id', nextInLine[0].id);
 
