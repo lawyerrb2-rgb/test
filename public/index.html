@@ -22,6 +22,50 @@ body {
     justify-content: center;
     padding: 20px;
 }
+/* จัดการกรอบด้านนอกให้รองรับ Banner แบบชิดขอบ */
+.container {
+    padding-top: 0; /* เอา padding บนออกเพื่อให้รูปชิดขอบ */
+    overflow: hidden; /* เพื่อให้รูป Banner ที่มุมโค้งไม่ทะลุออกมา */
+}
+
+/* สไตล์สำหรับ Banner ส่วนหัว */
+.header-banner {
+    width: calc(100% + 60px); /* ขยายให้ชิดขอบ padding ของ container */
+    margin-left: -30px;
+    margin-right: -30px;
+    height: 150px; /* ปรับความสูงตามต้องการ */
+    overflow: hidden;
+}
+
+#main-banner {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* ให้รูปเต็มกรอบโดยไม่เสียสัดส่วน */
+}
+
+/* สไตล์สำหรับโลโก้ */
+.logo-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: -40px; /* ให้โลโก้ลอยทับ Banner ขึ้นไปนิดนึง (ถ้าต้องการ) */
+    margin-bottom: 15px;
+}
+
+#my-logo {
+    width: 80px; /* ปรับขนาดโลโก้ */
+    height: 80px;
+    border-radius: 50%; /* ทำเป็นวงกลม */
+    border: 4px solid white; /* เพิ่มขอบขาวให้ดูเด่น */
+    background-color: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    object-fit: contain;
+}
+
+/* ปรับ h2 ให้ระยะห่างพอดี */
+h2 {
+    margin-top: 10px;
+    font-size: 1.4rem;
+}
 
 .container {
     width: 100%;
@@ -122,6 +166,13 @@ button:hover {
 <body>
 
 <div class="container">
+    <div class="header-banner">
+        <img src="URL_รูปภาพส่วนหัวของคุณ" alt="Banner" id="main-banner">
+    </div>
+
+    <div class="logo-wrapper">
+        <img src="URL_รูปโลโก้ของคุณ" alt="Logo" id="my-logo">
+    </div>
     <h2>🚀 ส่งโฆษณาขึ้นจอ TV</h2>
 
     <div class="form-group">
@@ -135,7 +186,7 @@ button:hover {
 
     <div class="form-group">
         <label>2. ข้อความบรรยายใต้ภาพ</label>
-        <input type="text" id="messageInput" placeholder="เช่น โปรโมชั่นลด 50%...">
+        <input type="text" id="messageInput" placeholder="เช่น รักนะเด็กโง่...">
     </div>
 
     <div class="form-group">
@@ -181,7 +232,7 @@ button:hover {
     // ใส่ค่าจริงจาก Supabase ของคุณที่นี่
     const SB_URL = 'https://zossrpbtdszdntgbqcfe.supabase.co';
     const SB_KEY = 'sb_publishable_7vCBrHCs7cx3uVDDT_SHJA_HVlc1xt9';
-    const supabaseClient = supabase.createClient('URL', 'KEY');
+    const supabaseClient = supabase.createClient('SB_URL', 'SB_KEY');
 
     async function startProcess() {
         const fileInput = document.getElementById('imageInput');
