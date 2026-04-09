@@ -92,6 +92,33 @@ function displayImage(url, msg) {
 
         let countdownInterval;
 
+function startTimer(expiryTime) {
+    // ล้าง Interval เก่าทิ้งก่อนเริ่มใหม่ เพื่อป้องกันเวลาเดินเพี้ยน
+    clearInterval(countdownInterval); 
+
+    countdownInterval = setInterval(() => {
+        const now = new Date().getTime();
+        const distance = new Date(expiryTime).getTime() - now;
+
+        const timeLeftElement = document.getElementById('time-left');
+        if (!timeLeftElement) return; // กันเหนียวถ้าหา Element ไม่เจอ
+
+        if (distance < 0) {
+            clearInterval(countdownInterval);
+            timeLeftElement.innerText = "หมดเวลา";
+            updateQueue(); // ตรวจสอบคิวถัดไปทันที
+            return;
+        }
+
+        // คำนวณนาทีและวินาที
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        // แสดงผลในรูปแบบ 00:00
+        timeLeftElement.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    }, 1000);
+}
+
 async function updateQueue() {
     // 1. หาโฆษณาที่กำลังฉาย (มี started_at และยังไม่หมดเวลา)
     const nowIso = new Date().toISOString();
