@@ -19,24 +19,30 @@
     const SB_KEY = 'sb_publishable_7vCBrHCs7cx3uVDDT_SHJA_HVlc1xt9';
     const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
-        // ฟังการเปลี่ยนแปลงใน Database แบบ Realtime
-        supabase
-            .channel('ads_display')
-            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'ads_display', filter: 'status=eq.paid' }, 
-            payload => {
-                showAd(payload.new);
-            })
-            .subscribe();
+     // เริ่มการฟัง (Listen) ข้อมูลที่เปลี่ยนแปลง
+const channels = supabaseClient.channel('custom-all-channel')
+.on(
+  'postgres_changes',
+  { event: 'UPDATE', schema: 'public', table: 'ads_display' }, // ตรวจสอบชื่อตารางให้ตรง
+  (payload) => {
+    console.log('Change received!', payload);
+    
+    // ตรวจสอบว่าถ้าสถานะเปลี่ยนเป็น paid ให้แสดงรูป
+    if (payload.new.status === 'paid') {
+      displayImage(payload.new.image_url, payload.new.message);
+    }
+  }
+)
+.subscribe();
 
-        function showAd(ad) {
-            const display = document.getElementById('display');
-            display.innerHTML = `
-                <img src="${ad.image_url}">
-                <h2>${ad.message}</h2>
-                <p>เวลาที่เหลือ: <span id="timer">--:--</span></p>
-            `;
-            // เพิ่ม Logic นับถอยหลังตรงนี้ได้
-        }
+function displayImage(url, msg) {
+    const imgElement = document.getElementById('ad-image');
+    const msgElement = document.getElementById('ad-message');
+    
+    imgElement.src = url;
+    msgElement.innerText = msg;
+    // อาจเพิ่มคำสั่งโชว์ Div หรือ Animation ตรงนี้
+}
     </script>
 </body>
 </html>
