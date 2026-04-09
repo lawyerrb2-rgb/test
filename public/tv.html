@@ -9,6 +9,34 @@
     --text-white: #ffffff;
     --overlay-bg: rgba(0, 0, 0, 0.6);
 }
+/* วิดีโอพื้นหลัง */
+#bg-video {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    min-width: 100%;
+    min-height: 100%;
+    z-index: -1; /* อยู่ชั้นล่างสุด */
+    object-fit: cover;
+}
+
+/* รูปโฆษณา */
+#ad-image {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: contain; /* ปรับให้เห็นรูปโฆษณาครบถ้วน */
+    z-index: 10; /* อยู่เหนือวิดีโอ */
+    background-color: transparent; /* สำคัญ: ต้องโปร่งใสเพื่อให้เห็นวิดีโอข้างหลัง (ถ้าต้องการ) */
+    display: none; /* ซ่อนไว้ก่อน */
+}
+
+/* ปรับ Overlay ให้เด่นขึ้น */
+.info-bar {
+    z-index: 20; /* อยู่บนสุด */
+}
 
 body {
     margin: 0;
@@ -95,7 +123,14 @@ body {
     </style>
 </head>
 <body>
+<video autoplay muted loop id="bg-video">
+        <source src="URL_วิดีโอของคุณ.mp4" type="video/mp4"> //video BG
+    </video>
 
+    <img id="ad-image" src="https://zossrpbtdszdntgbqcfe.supabase.co/storage/v1/object/public/assets/BG.jpg" alt="Advertising">
+
+    <div id="next-queue-bar">...</div>
+    <div class="info-bar" id="info-overlay">...</div>
 <div id="next-queue-bar">
     <span class="label">คิวถัดไป:</span> <span id="next-msg">รอรับโฆษณา...</span>
 </div>
@@ -104,7 +139,7 @@ body {
 
 <div class="info-bar" id="info-overlay">
     <div class="message-section">
-        <p id="ad-message">ยินดีต้อนรับสู่ร้านของเรา</p>
+        <p id="ad-message">ยินดีต้อนรับ</p>
     </div>
     <div class="timer-section">
         <span class="label">เหลือเวลา</span>
@@ -134,6 +169,7 @@ function displayImage(url, msg) {
     const imgElement = document.getElementById('ad-image');
     const msgElement = document.getElementById('ad-message');
     const overlay = document.getElementById('info-overlay');
+    const videoBg = document.getElementById('bg-video');
 
     if (imgElement && url) {
         // ค่อยๆ จางออกก่อนเปลี่ยนรูป
@@ -142,8 +178,9 @@ function displayImage(url, msg) {
         setTimeout(() => {
             imgElement.src = url;
             msgElement.innerText = msg;
-            imgElement.style.opacity = 1; // ค่อยๆ ปรากฏขึ้น
+            imgElement.style.display = 'block'; // โชว์รูปโฆษณา
             overlay.style.display = 'flex';
+            // videoBg.style.opacity = '0.3';   // (ตัวเลือก) หรี่วิดีโอลงเพื่อให้โฆษณาเด่น
         }, 800);
     }
 }
@@ -227,10 +264,12 @@ async function checkAndStartNextQueue() {
             updateQueue(); // เรียกตัวเองเพื่อแสดงผลรูปที่เพิ่งอัปเดต
         }
     } else {
-        // ไม่มีคิวเหลือเลย -> ล้างหน้าจอหรือโชว์รูปพักหน้าจอ
-        document.getElementById('ad-image').style.display = 'none';
-        document.getElementById('ad-message').innerText = "รอรับโฆษณาถัดไป...";
-        document.getElementById('time-left').innerText = "00:00";
+    // ไม่มีคิวเหลือเลย
+    document.getElementById('ad-image').style.display = 'none'; // ซ่อนรูปโฆษณา
+    document.getElementById('info-overlay').style.display = 'none'; // ซ่อนแถบข้อมูล
+    
+    const videoBg = document.getElementById('bg-video');
+    if(videoBg) videoBg.style.opacity = '1'; // ให้วิดีโอสว่างปกติ
     }
 }
     

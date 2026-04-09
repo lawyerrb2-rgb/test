@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ส่งรูปขึ้นจอ TV By M Group</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
     --primary-color: #4f46e5;
@@ -218,6 +218,11 @@ button:hover {
 </div>
 
 <script>
+        // ใส่ค่าจริงจาก Supabase ของคุณที่นี่
+    const SB_URL = 'https://zossrpbtdszdntgbqcfe.supabase.co';
+    const SB_KEY = 'sb_publishable_7vCBrHCs7cx3uVDDT_SHJA_HVlc1xt9';
+    const supabaseClient = supabase.createClient('SB_URL', 'SB_KEY');
+    
     function previewFile() {
     const preview = document.getElementById('preview-img');
     const file = document.getElementById('imageInput').files[0];
@@ -235,10 +240,6 @@ button:hover {
         preview.style.display = 'none';
     }
 }
-    // ใส่ค่าจริงจาก Supabase ของคุณที่นี่
-    const SB_URL = 'https://zossrpbtdszdntgbqcfe.supabase.co';
-    const SB_KEY = 'sb_publishable_7vCBrHCs7cx3uVDDT_SHJA_HVlc1xt9';
-    const supabaseClient = supabase.createClient('SB_URL', 'SB_KEY');
 
     async function startProcess() {
         const fileInput = document.getElementById('imageInput');
