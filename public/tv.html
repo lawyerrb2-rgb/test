@@ -111,9 +111,8 @@ function startTimer(expiryTime) {
             return;
         }
 
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-        document.getElementById('time-left').innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        const secondsLeft = Math.floor(distance / 1000);
+        document.getElementById('time-left').innerText = `${secondsLeft} วินาที`;
     }, 1000);
 }
 
@@ -131,8 +130,8 @@ async function checkAndStartNextQueue() {
     if (nextInLine && nextInLine.length > 0) {
         const start = new Date();
         // คำนวณเวลาหมดอายุจาก duration_minutes ที่ดึงมาจาก DB
-        const duration = nextInLine[0].duration_minutes || 10; // ถ้าไม่มีค่าให้ default 10 นาที
-        const expire = new Date(start.getTime() + duration * 60000);
+        const durationInSeconds = nextInLine[0].duration_minutes; // หรือชื่อคอลัมน์ที่คุณเปลี่ยน
+        const expire = new Date(start.getTime() + durationInSeconds * 1000);
         
         // อัปเดตเวลาลง Database ทันที (คอลัมน์ในตารางจะไม่เป็น NULL แล้ว)
         const { error } = await supabaseClient
