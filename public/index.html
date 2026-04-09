@@ -37,9 +37,9 @@
     <div class="form-group">
         <label>3. เลือกเวลาแสดงผล</label>
         <select id="durationInput">
-            <option value="10">10 นาที (20 บาท)</option>
-            <option value="30">30 นาที (50 บาท)</option>
-            <option value="60">1 ชั่วโมง (90 บาท)</option>
+            <option value="10">15 วินาที (20 บาท)</option>
+            <option value="30">30 วินาที (50 บาท)</option>
+            <option value="60">60 วินาที (80 บาท)</option>
         </select>
     </div>
 
@@ -59,7 +59,7 @@
     // ใส่ค่าจริงจาก Supabase ของคุณที่นี่
     const SB_URL = 'https://zossrpbtdszdntgbqcfe.supabase.co';
     const SB_KEY = 'sb_publishable_7vCBrHCs7cx3uVDDT_SHJA_HVlc1xt9';
-    const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+    const supabaseClient = supabase.createClient('URL', 'KEY');
 
     async function startProcess() {
         const fileInput = document.getElementById('imageInput');
