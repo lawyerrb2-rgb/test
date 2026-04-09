@@ -155,6 +155,7 @@ async function updateQueue() {
 function displayImage(url, msg) {
     const imgElement = document.getElementById('ad-image');
     const msgElement = document.getElementById('ad-message');
+    const overlay = document.getElementById('info-overlay');
     
     if (imgElement && msgElement) {
         imgElement.src = url;
