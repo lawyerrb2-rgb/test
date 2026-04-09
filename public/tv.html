@@ -75,7 +75,6 @@ const channels = supabaseClient.channel('custom-all-channel')
     }
   }
 )
-       .subscribe();
 
 function displayImage(url, msg) {
     const imgElement = document.getElementById('ad-image');
@@ -150,7 +149,7 @@ async function checkAndStartNextQueue() {
         document.getElementById('time-left').innerText = "00:00";
     }
 }
-
+    
 // สั่งให้ทำงานทุกครั้งที่มีการอัปเดตข้อมูล
 supabaseClient.channel('custom-all-channel')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'ads_display' }, () => {
