@@ -4,23 +4,171 @@
     <title>TV Display</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { margin: 0; background: black; color: white; overflow: hidden; font-family: sans-serif; }
-        #display { width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        img { max-width: 80%; max-height: 70%; border-radius: 20px; }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black; /* ให้พื้นหลังจอเป็นสีดำ */
+            overflow: hidden;        /* ป้องกันไม่ให้มีแถบเลื่อน (Scrollbar) */
+        }
+
+        #ad-image {
+            width: 100vw;            /* กว้าง 100% ของหน้าจอ */
+            height: 100vh;           /* สูง 100% ของหน้าจอ */
+            object-fit: contain;     /* ปรับรูปให้พอดีจอ โดยไม่ยืดจนเสียสัดส่วน */
+            display: none;           /* ซ่อนไว้ก่อนจนกว่าจะมีรูปส่งมา */
+        }
+
+        #ad-message {
+            position: absolute;
+            bottom: 20px;            /* วางข้อความไว้ด้านล่าง */
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: white;
+            font-size: 3rem;         /* ขนาดตัวอักษรใหญ่ๆ */
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8); /* ใส่เงาให้ตัวหนังสืออ่านง่ายขึ้น */
+            background: rgba(0,0,0,0.4); /* ใส่พื้นหลังจางๆ ให้ข้อความ */
+            margin: 0;
+            padding: 10px;
+        }
+        #status-bar {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.5rem;
+            font-family: sans-serif;
+            z-index: 100;
+}
+        #timer { color: #ffcc00; margin-bottom: 5px; font-weight: bold; }
+        #next-queue { font-size: 1rem; color: #ccc; }
     </style>
 </head>
 <body>
-    <div id="display">
-        <h1>รอรับข้อความ...</h1>
-    </div>
+<div id="display-container">
+    <img id="ad-image" src="" style="max-width: 100%; height: auto; display: none;">
+    <h1 id="ad-message">รอรับข้อความ...</h1>
+</div>
+<div id="status-bar">
+    <div id="timer">เวลาเหลือ: <span id="time-left">00:00</span></div>
+    <div id="next-queue">คิวถัดไป: <span id="next-msg">ไม่มีคิว</span></div>
+</div>
 
     <script>
     const SB_URL = 'https://zossrpbtdszdntgbqcfe.supabase.co';
     const SB_KEY = 'sb_publishable_7vCBrHCs7cx3uVDDT_SHJA_HVlc1xt9';
     const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
-     // เริ่มการฟัง (Listen) ข้อมูลที่เปลี่ยนแปลง
-const channels = supabaseClient.channel('custom-all-channel')
+    //ประกาศฟังก์ชัน
+let countdownInterval;
+
+// ฟังก์ชันดึงข้อมูลคิวทั้งหมด
+async function updateQueue() {
+    // 1. หาโฆษณาที่กำลังฉาย (มี started_at และยังไม่หมดเวลา)
+    const nowIso = new Date().toISOString();
+    const { data: currentAds } = await supabaseClient
+        .from('ads_display')
+        .select('*')
+        .eq('status', 'paid')
+        .lte('started_at', nowIso) // เริ่มไปแล้ว
+        .gt('expires_at', nowIso)   // ยังไม่หมดอายุ
+        .limit(1);
+
+    if (currentAds && currentAds.length > 0) {
+        // มีรูปกำลังฉายอยู่ -> แสดงรูปและเริ่มนับถอยหลัง
+        displayImage(currentAds[0].image_url, currentAds[0].message);
+        startTimer(currentAds[0].expires_at);
+    } else {
+        // ไม่มีรูปฉายอยู่ หรือรูปเก่าหมดเวลาแล้ว -> ไปดึงคิวใหม่มาเริ่ม
+        checkAndStartNextQueue();
+    }
+}
+
+function displayImage(url, msg) {
+    const imgElement = document.getElementById('ad-image');
+    const msgElement = document.getElementById('ad-message');
+    
+    if (imgElement && msgElement) {
+        imgElement.src = url;
+        imgElement.style.display = 'block'; // แสดงรูปภาพ (เผื่อตอนแรกซ่อนไว้)
+        msgElement.innerText = msg;
+}
+}
+
+function startTimer(expiryTime) {
+    clearInterval(countdownInterval);
+    countdownInterval = setInterval(() => {
+        const now = new Date().getTime();
+        const distance = new Date(expiryTime).getTime() - now;
+
+        if (distance < 0) {
+            clearInterval(countdownInterval);
+            document.getElementById('time-left').innerText = "หมดเวลา";
+            updateQueue(); // ตรวจสอบคิวใหม่ทันที
+            return;
+        }
+
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        document.getElementById('time-left').innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    }, 1000);
+}
+
+// ฟังก์ชันสำหรับเริ่มคิวใหม่ (เรียกใช้เมื่อของเก่าหมดเวลา)
+async function checkAndStartNextQueue() {
+    // หาคิวแรกที่จ่ายเงินแล้วแต่ยังไม่ได้เริ่มฉาย (started_at เป็น NULL)
+    const { data: nextInLine } = await supabaseClient
+        .from('ads_display')
+        .select('*')
+        .eq('status', 'paid')
+        .is('started_at', null)
+        .order('created_at', { ascending: true })
+        .limit(1);
+
+    if (nextInLine && nextInLine.length > 0) {
+        const start = new Date();
+        // คำนวณเวลาหมดอายุจาก duration_minutes ที่ดึงมาจาก DB
+        const duration = nextInLine[0].duration_minutes || 10; // ถ้าไม่มีค่าให้ default 10 นาที
+        const expire = new Date(start.getTime() + duration * 60000);
+        
+        // อัปเดตเวลาลง Database ทันที (คอลัมน์ในตารางจะไม่เป็น NULL แล้ว)
+        const { error } = await supabaseClient
+            .from('ads_display')
+            .update({ 
+                started_at: start.toISOString(), 
+                expires_at: expire.toISOString() 
+            })
+            .eq('id', nextInLine[0].id);
+
+        if (!error) {
+            console.log("เริ่มคิวใหม่สำเร็จ!");
+            updateQueue(); // เรียกตัวเองเพื่อแสดงผลรูปที่เพิ่งอัปเดต
+        }
+    } else {
+        // ไม่มีคิวเหลือเลย -> ล้างหน้าจอหรือโชว์รูปพักหน้าจอ
+        document.getElementById('ad-image').style.display = 'none';
+        document.getElementById('ad-message').innerText = "รอรับโฆษณาถัดไป...";
+        document.getElementById('time-left').innerText = "00:00";
+    }
+}
+
+// สั่งให้ทำงานทุกครั้งที่มีการอัปเดตข้อมูล
+supabaseClient.channel('custom-all-channel')
+
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'ads_display' }, () => {
+        updateQueue();
+    })
+    .subscribe();
+
+// เรียกใช้ครั้งแรกเมื่อโหลดหน้า
+    updateQueue();
+
+ // เริ่มการฟัง (Listen) ข้อมูลที่เปลี่ยนแปลง
+    const channels = supabaseClient.channel('custom-all-channel')
+
 .on(
   'postgres_changes',
   { event: 'UPDATE', schema: 'public', table: 'ads_display' }, // ตรวจสอบชื่อตารางให้ตรง
@@ -35,14 +183,7 @@ const channels = supabaseClient.channel('custom-all-channel')
 )
 .subscribe();
 
-function displayImage(url, msg) {
-    const imgElement = document.getElementById('ad-image');
-    const msgElement = document.getElementById('ad-message');
-    
-    imgElement.src = url;
-    msgElement.innerText = msg;
-    // อาจเพิ่มคำสั่งโชว์ Div หรือ Animation ตรงนี้
-}
+
     </script>
 </body>
 </html>
