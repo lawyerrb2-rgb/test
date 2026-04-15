@@ -210,6 +210,10 @@ function displayImage(url, msg) {
     if (imgElement && url) {
         // ค่อยๆ จางออกก่อนเปลี่ยนรูป
         imgElement.style.opacity = 0;
+        imgElement.src = url;
+        imgElement.style.display = "block"; // 1; ค่อยๆ ปรากฏขึ้น // block แสดงรูปภาพ (เผื่อตอนแรกซ่อนไว้)
+        overlay.style.display = 'flex';    //โชว์แถบข้อมูล
+        msgElement.innerText = msg;
         
         setTimeout(() => {
             imgElement.src = url;
