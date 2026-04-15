@@ -9,6 +9,18 @@
     --text-white: #ffffff;
     --overlay-bg: rgba(0, 0, 0, 0.6);
 }
+
+/* วิดีโอพื้นหลัง */
+#bg-video {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    min-width: 100%;
+    min-height: 100%;
+    z-index: -1; /* อยู่ชั้นล่างสุด */
+    object-fit: cover;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -20,14 +32,19 @@ body {
 
         /* พื้นที่แสดงรูปภาพหลัก */
 #ad-image {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100vw;
     height: 100vh;
-    object-fit: contain;
-    background: radial-gradient(circle, #222 0%, #000 100%);
-    transition: opacity 0.8s ease-in-out; /* แอนิเมชันตอนเปลี่ยนรูป */
+    object-fit: contain; /* ปรับให้เห็นรูปโฆษณาครบถ้วน */
+    z-index: 10; /* อยู่เหนือวิดีโอ */
+    background-color: transparent; /* สำคัญ: ต้องโปร่งใสเพื่อให้เห็นวิดีโอข้างหลัง (ถ้าต้องการ) */
+    display: none; /* ซ่อนไว้ก่อน */
 }
 /* แถบข้อมูลด้านล่าง (Glassmorphism) */
 .info-bar {
+    z-index: 20; /* อยู่บนสุด */
     position: absolute;
     bottom: 40px;
     left: 50%;
@@ -102,23 +119,26 @@ body {
     </style>
 </head>
 <body>
-<div id="next-queue-bar">
-    <span class="label">คิวถัดไป:</span> <span id="next-msg">รอรับโฆษณา...</span>
-</div>
+    <img autoplay muted loop id="bg-video">
+        <source src="https://zossrpbtdszdntgbqcfe.supabase.co/storage/v1/object/public/assets/BG.jpg" type="image_url">
+    </img>
 
-<div id="display-container">
-    <img id="ad-image" src="" style="max-width: 100%; height: auto; display: none;">
+    <div id="next-queue-bar">
+        <span class="label">คิวถัดไป:</span> <span id="next-msg">รอรับโฆษณา...</span>
+    </div>
 
-</div>
-<div class="info-bar" id="info-overlay">
-    <div class="message-section">
+    <div id="display-container">
+        <img id="ad-image" src="" style="max-width: 100%; height: auto; display: none;">
+    </div>
+    <div class="info-bar" id="info-overlay">
+        <div class="message-section">
         <p id="ad-message">ยินดีต้อนรับสู่ร้านของเรา</p>
     </div>
 
-<div class="timer-section">
+    <div class="timer-section">
         <span class="label">เหลือเวลา</span>
         <span id="time-left">000</span>
-</div>
+    </div>
 
 
 
@@ -168,7 +188,7 @@ async function updateQueue() {
             nextMsgElement.innerText = nextAds[0].message;
         } else {
             // ถ้าไม่มีคิวค้างอยู่เลย
-            nextMsgElement.innerText = "ว่าง";
+            nextMsgElement.innerText = "ไม่มี";
         }
     }
 }
