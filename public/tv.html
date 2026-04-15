@@ -102,25 +102,26 @@ body {
     </style>
 </head>
 <body>
+<div id="next-queue-bar">
+    <span class="label">คิวถัดไป:</span> <span id="next-msg">รอรับโฆษณา...</span>
+</div>
 
 <div id="display-container">
     <img id="ad-image" src="" style="max-width: 100%; height: auto; display: none;">
 
 </div>
-
-<div class="timer-section">
-        <span class="label">เหลือเวลา</span>
-        <span id="time-left">00:00</span>
-</div>
-
-<div id="next-queue-bar">
-    <span class="label">คิวถัดไป:</span> <span id="next-msg">รอรับโฆษณา...</span>
-</div>
-
 <div class="info-bar" id="info-overlay">
     <div class="message-section">
         <p id="ad-message">ยินดีต้อนรับสู่ร้านของเรา</p>
     </div>
+
+<div class="timer-section">
+        <span class="label">เหลือเวลา</span>
+        <span id="time-left">000</span>
+</div>
+
+
+
 </div>
     <script>
     const SB_URL = 'https://zossrpbtdszdntgbqcfe.supabase.co';
@@ -215,7 +216,7 @@ async function checkAndStartNextQueue() {
     } else {
         // ไม่มีคิวเหลือเลย -> ล้างหน้าจอหรือโชว์รูปพักหน้าจอ
         document.getElementById('ad-image').style.display = 'none';
-        document.getElementById('ad-message').innerText = "ส่งรูปเลยจ้า";
+        document.getElementById('ad-message').innerText = "แจกวาป ส่งรูป สแกนเลย";
         document.getElementById('time-left').innerText = "000";
     }
 }
