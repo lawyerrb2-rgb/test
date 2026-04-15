@@ -151,6 +151,26 @@ async function updateQueue() {
         // ไม่มีรูปฉายอยู่ หรือรูปเก่าหมดเวลาแล้ว -> ไปดึงคิวใหม่มาเริ่ม
         checkAndStartNextQueue();
     }
+
+    // --- ส่วนที่ 2: ดึงโฆษณา "คิวถัดไป" (จ่ายแล้วแต่ยังไม่ได้เริ่ม) ---
+    const { data: nextAds } = await supabaseClient
+        .from('ads_display')
+        .select('message') // ดึงมาแค่ข้อความพอ
+        .eq('status', 'paid')
+        .is('started_at', null) // ยังไม่มีเวลาเริ่ม = ยังไม่เคยฉาย
+        .order('created_at', { ascending: true }) // เอาคิวที่เก่าที่สุดก่อน
+        .limit(1);
+
+    const nextMsgElement = document.getElementById('next-msg');
+    if (nextMsgElement) {
+        if (nextAds && nextAds.length > 0) {
+            // ถ้ามีคิวถัดไป ให้โชว์ข้อความของคิวนั้น
+            nextMsgElement.innerText = nextAds[0].message;
+        } else {
+            // ถ้าไม่มีคิวค้างอยู่เลย
+            nextMsgElement.innerText = "ว่าง";
+        }
+    }
 }
 
 function displayImage(url, msg) {
