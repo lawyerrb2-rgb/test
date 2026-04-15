@@ -18,7 +18,9 @@
     height: 100vh;
     object-fit: cover; /* ให้รูปเต็มจอโดยไม่เสียสัดส่วน */
     z-index: -1;        /* อยู่ชั้นล่างสุดเสมอ */
-    filter: brightness(0.7); /* (ตัวเลือก) ปรับให้รูปมืดลงนิดนึงเพื่อให้โฆษณาเด่น */
+    transition: opacity 1.5s ease-in-out; /* ปรับเวลาให้นุ่มนวลขึ้น */
+    filter: brightness(0.5); /* ปรับให้มืดลงเพื่อให้ข้อความโฆษณาอ่านง่าย */
+    background-color: #000; /* สีพื้นหลังระหว่างรอโหลดรูป */
 }
 /* วิดีโอพื้นหลัง */
 #bg-video {
@@ -130,7 +132,7 @@ body {
     </style>
 </head>
 <body>
-    <img id="bg-image-default" src="https://zossrpbtdszdntgbqcfe.supabase.co/storage/v1/object/public/assets/BG.jpg" alt="Background">
+    <img id="bg-image-default" src="" alt="Background">
 
     <div id="next-queue-bar">
         <span class="label">คิวถัดไป:</span> <span id="next-msg">รอรับโฆษณา...</span>
@@ -159,6 +161,64 @@ body {
 
     //ประกาศฟังก์ชัน
 let countdownInterval;
+
+// 1. ตั้งค่าเบื้องต้น
+const BUCKET_NAME = 'backgrounds';
+let bgImages = []; // ปล่อยว่างไว้ก่อน เดี๋ยวเราจะดึงมาใส่
+let currentBgIndex = 0;
+
+// 2. ฟังก์ชันดึงรายชื่อรูปภาพทั้งหมดจาก Supabase Storage
+async function fetchBackgroundImages() {
+    try {
+        // ดึงรายชื่อไฟล์ใน Bucket
+        const { data, error } = await supabaseClient
+            .storage
+            .from(BUCKET_NAME)
+            .list('', {
+                limit: 100,
+                offset: 0,
+                sortBy: { column: 'name', order: 'asc' },
+            });
+
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+            // สร้าง Full URL สำหรับแต่ละรูป
+            bgImages = data.map(file => {
+                const { data: urlData } = supabaseClient
+                    .storage
+                    .from(BUCKET_NAME)
+                    .getPublicUrl(file.name);
+                return urlData.publicUrl;
+            });
+            
+            // เริ่มสลับรูปครั้งแรกหลังจากดึงข้อมูลสำเร็จ
+            rotateBackground(); 
+        }
+    } catch (err) {
+        console.error("Error fetching backgrounds:", err.message);
+    }
+}
+
+// 3. ฟังก์ชันสลับรูป (เหมือนเดิม แต่เพิ่มเช็คเงื่อนไขเล็กน้อย)
+function rotateBackground() {
+    const bgElement = document.getElementById('bg-image-default');
+    if (!bgElement || bgImages.length === 0) return;
+
+    bgElement.style.opacity = 0; // จางออก
+
+    setTimeout(() => {
+        bgElement.src = bgImages[currentBgIndex];
+        bgElement.style.opacity = 1; // จางเข้า
+        
+        currentBgIndex = (currentBgIndex + 1) % bgImages.length;
+    }, 800);
+}
+
+// 4. สั่งให้ทำงาน
+fetchBackgroundImages(); // ดึงรูปภาพตอนโหลดหน้าครั้งแรก
+setInterval(rotateBackground, 30000); // สลับรูปทุก 1 นาที
+setInterval(fetchBackgroundImages, 300000); // อัปเดตรายชื่อรูปใหม่ทุก 5 นาที (เผื่อคุณอัปโหลดรูปเพิ่ม)
 
 // ฟังก์ชันดึงข้อมูลคิวทั้งหมด
 async function updateQueue() {
