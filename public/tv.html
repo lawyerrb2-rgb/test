@@ -190,6 +190,7 @@ async function fetchBackgroundImages() {
                     .storage
                     .from(BUCKET_NAME)
                     .getPublicUrl(file.name);
+                console.log("ได้ URL รูปภาพ:", urlData.publicUrl); // เพิ่มบรรทัดนี้เพื่อเช็คใน Console
                 return urlData.publicUrl;
             });
             
