@@ -9,7 +9,17 @@
     --text-white: #ffffff;
     --overlay-bg: rgba(0, 0, 0, 0.6);
 }
-
+/* รูปพื้นหลังเริ่มต้น */
+#bg-image-default {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover; /* ให้รูปเต็มจอโดยไม่เสียสัดส่วน */
+    z-index: -1;        /* อยู่ชั้นล่างสุดเสมอ */
+    filter: brightness(0.7); /* (ตัวเลือก) ปรับให้รูปมืดลงนิดนึงเพื่อให้โฆษณาเด่น */
+}
 /* วิดีโอพื้นหลัง */
 #bg-video {
     position: fixed;
@@ -119,9 +129,7 @@ body {
     </style>
 </head>
 <body>
-    <img autoplay muted loop id="bg-video">
-        <source src="https://zossrpbtdszdntgbqcfe.supabase.co/storage/v1/object/public/assets/BG.jpg" type="image_url">
-    </img>
+    <img id="bg-image-default" src="https://zossrpbtdszdntgbqcfe.supabase.co/storage/v1/object/public/assets/BG.jpg" alt="Background">
 
     <div id="next-queue-bar">
         <span class="label">คิวถัดไป:</span> <span id="next-msg">รอรับโฆษณา...</span>
@@ -258,6 +266,10 @@ async function checkAndStartNextQueue() {
         document.getElementById('ad-image').style.display = 'none';
         document.getElementById('ad-message').innerText = "แจกวาป ส่งรูป สแกนเลย";
         document.getElementById('time-left').innerText = "000";
+        document.getElementById('info-overlay').style.display = 'none'; // ซ่อนแถบข้อมูล
+
+        // รูป bg-image-default จะปรากฏให้เห็นเองเพราะมันอยู่ข้างหลังตลอดเวลา
+    console.log("ไม่มีโฆษณา แสดงหน้าจอว่าง");
     }
 }
 
