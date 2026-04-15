@@ -206,9 +206,10 @@ function displayImage(url, msg) {
     const msgElement = document.getElementById('ad-message');
     const overlay = document.getElementById('info-overlay');
     
-    if (imgElement && msgElement) {
+    if (imgElement && msgElement && url) {
         imgElement.src = url;
-        imgElement.style.display = 'block'; // แสดงรูปภาพ (เผื่อตอนแรกซ่อนไว้)
+        imgElement.style.display = 1; // 1; ค่อยๆ ปรากฏขึ้น // block แสดงรูปภาพ (เผื่อตอนแรกซ่อนไว้)
+        overlay.style.display = 'flex';    //โชว์แถบข้อมูล
         msgElement.innerText = msg;
 }
 }
