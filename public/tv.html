@@ -206,13 +206,18 @@ function displayImage(url, msg) {
     const imgElement = document.getElementById('ad-image');
     const msgElement = document.getElementById('ad-message');
     const overlay = document.getElementById('info-overlay');
-    
-    if (imgElement && msgElement) {
-        imgElement.src = url;
-        imgElement.style.display = "block"; // 1; ค่อยๆ ปรากฏขึ้น // block แสดงรูปภาพ (เผื่อตอนแรกซ่อนไว้)
-        overlay.style.display = 'flex';    //โชว์แถบข้อมูล
-        msgElement.innerText = msg;
-}
+
+    if (imgElement && url) {
+        // ค่อยๆ จางออกก่อนเปลี่ยนรูป
+        imgElement.style.opacity = 0;
+        
+        setTimeout(() => {
+            imgElement.src = url;
+            msgElement.innerText = msg;
+            imgElement.style.opacity = 1; // ค่อยๆ ปรากฏขึ้น
+            overlay.style.display = 'flex';
+        }, 800);
+    }
 }
 
 function startTimer(expiryTime) {
