@@ -164,10 +164,15 @@ function displayImage(url, msg) {
 let countdownInterval;
 
 function startTimer(expiryTime) {
+    // ล้าง Interval เก่าทิ้งก่อนเริ่มใหม่ เพื่อป้องกันเวลาเดินเพี้ยน
     clearInterval(countdownInterval);
+
     countdownInterval = setInterval(() => {
         const now = new Date().getTime();
         const distance = new Date(expiryTime).getTime() - now;
+
+        const timeLeftElement = document.getElementById('time-left');
+        if (!timeLeftElement) return; // กันเหนียวถ้าหา Element ไม่เจอ
 
         if (distance < 0) {
             clearInterval(countdownInterval);
@@ -216,7 +221,7 @@ async function checkAndStartNextQueue() {
         const start = new Date();
         // คำนวณเวลาหมดอายุจาก duration_minutes ที่ดึงมาจาก DB
         const duration = nextInLine[0].duration_minutes || 10; // ถ้าไม่มีค่าให้ default 10 นาที
-        const expire = new Date(start.getTime() + duration * 60000);
+        const expire = new Date(start.getTime() + durationInSeconds * 1000);
         
         // อัปเดตเวลาลง Database ทันที (คอลัมน์ในตารางจะไม่เป็น NULL แล้ว)
         const { error } = await supabaseClient
@@ -242,10 +247,12 @@ async function checkAndStartNextQueue() {
 // เรียกใช้ครั้งแรกเมื่อโหลดหน้า
     updateQueue();
 
- // เริ่มการฟัง (Listen) ข้อมูลที่เปลี่ยนแปลง
+ // สร้างการเชื่อมต่อ
 const channels = supabaseClient.channel('custom-all-channel')
 
-.on(
+// ตั้งค่าว่า "ถ้าเกิดอะไรขึ้น ให้ทำอะไร" (ต้องทำก่อน .subscribe()) ---
+
+myChannel.on(
   'postgres_changes',
   { event: 'UPDATE', schema: 'public', table: 'ads_display' }, // ตรวจสอบชื่อตารางให้ตรง
   (payload) => {
