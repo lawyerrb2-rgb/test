@@ -59,7 +59,7 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.2);
     padding: 20px 40px;
     border-radius: 25px;
-    display: block;
+    display: flex;
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 15px 35px rgba(0,0,0,0.5);
@@ -144,10 +144,11 @@ function displayImage(url, msg) {
     const overlay = document.getElementById('info-overlay');
 
     if (imgElement && url) {
+        imgElement.src = url;
         // ค่อยๆ จางออกก่อนเปลี่ยนรูป
         imgElement.style.opacity = 1;
         imgElement.style.display = 'block'
-        
+
         setTimeout(() => {
             imgElement.src = url;
             msgElement.innerText = msg;
@@ -167,8 +168,6 @@ function startTimer(expiryTime) {
         const now = new Date().getTime();
         const distance = new Date(expiryTime).getTime() - now;
 
-        const timeLeftElement = document.getElementById('time-left');
-        if (!timeLeftElement) return; // กันเหนียวถ้าหา Element ไม่เจอ
 
         if (distance < 0) {
             clearInterval(countdownInterval);
@@ -176,7 +175,7 @@ function startTimer(expiryTime) {
             updateQueue(); // ตรวจสอบคิวใหม่ทันที
             return;
         }
-
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
         const secondsLeft = Math.floor(distance / 1000);
         document.getElementById('time-left').innerText = `${secondsLeft} วินาที`;
     }, 1000);
