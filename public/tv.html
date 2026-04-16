@@ -300,21 +300,12 @@ function displayImage(url, msg) {
 
 let timerInterval; // สร้างตัวแปรเก็บ Interval ไว้ข้างนอกเพื่อสั่งหยุดได้
 
-function startTimer(expiresAt) {
+function startTimer(expiryTime) {
     // 1. ล้าง Interval เก่าออกก่อน (กันมันทำงานซ้อนกันจนเวลาวิ่งมั่ว)
-    clearInterval(timerInterval);
-
-    const timerElement = document.getElementById('time-left');
-    const expireDate = new Date(expiresAt).getTime();
-
-    // 2. ตั้งการทำงานซ้ำทุก 1,000 มิลลิวินาที (1 วินาที)
-    timerInterval = setInterval(() => {
+    clearInterval(countdownInterval);
+    countdownInterval = setInterval(() => {
         const now = new Date().getTime();
-        const distance = expireDate - now;
-
-        // คำนวณ นาที และ วินาที
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        const distance = new Date(expiryTime).getTime() - now;
 
         // 3. แสดงผลลงในหน้าจอ
         if (distance < 0) {
