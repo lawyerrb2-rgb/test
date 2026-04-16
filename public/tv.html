@@ -307,16 +307,15 @@ function startTimer(expiryTime) {
         const now = new Date().getTime();
         const distance = new Date(expiryTime).getTime() - now;
 
-        // 3. แสดงผลลงในหน้าจอ
         if (distance < 0) {
-            // ถ้าหมดเวลาแล้ว
-            clearInterval(timerInterval);
-            timerElement.innerText = "000";
-            updateQueue(); // สั่งให้เช็คคิวถัดไปทันทีเมื่อหมดเวลา
-        } else {
-            // แสดงผลแบบ 0:00 (เติมเลข 0 ข้างหน้าถ้าเลขหลักเดียว)
-            timerElement.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            clearInterval(countdownInterval);
+            document.getElementById('time-left').innerText = "หมดเวลา";
+            updateQueue(); // ตรวจสอบคิวใหม่ทันที
+            return;
         }
+
+        const secondsLeft = Math.floor(distance / 1000);
+        document.getElementById('time-left').innerText = `${secondsLeft} วินาที`;
     }, 1000);
 }
 
@@ -383,7 +382,6 @@ async function checkAndStartNextQueue() {
   }
 )
 .subscribe();
-
 
     </script>
 </body>
