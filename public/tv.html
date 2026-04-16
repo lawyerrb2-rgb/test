@@ -356,13 +356,7 @@ async function checkAndStartNextQueue() {
     }
 }
 
-// สั่งให้ทำงานทุกครั้งที่มีการอัปเดตข้อมูล
-supabaseClient.channel('custom-all-channel')
 
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'ads_display' }, () => {
-        updateQueue();
-    })
-    .subscribe();
 
 // เรียกใช้ครั้งแรกเมื่อโหลดหน้า
     updateQueue();
