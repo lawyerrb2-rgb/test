@@ -145,7 +145,8 @@ function displayImage(url, msg) {
 
     if (imgElement && url) {
         // ค่อยๆ จางออกก่อนเปลี่ยนรูป
-        imgElement.style.opacity = 0;
+        imgElement.style.opacity = 1;
+        imgElement.style.display = 'block'
         
         setTimeout(() => {
             imgElement.src = url;
