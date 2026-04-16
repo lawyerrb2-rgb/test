@@ -171,7 +171,8 @@ let currentBgIndex = 0;
 // 2. ฟังก์ชันดึงรายชื่อรูปภาพทั้งหมดจาก Supabase Storage
 async function fetchBackgroundImages() {
     try {
-        // ดึงรายชื่อไฟล์ใน Bucket
+        console.log("กำลังดึงรายชื่อรูปภาพจาก Bucket:", BUCKET_NAME);
+        
         const { data, error } = await supabaseClient
             .storage
             .from(BUCKET_NAME)
@@ -181,24 +182,33 @@ async function fetchBackgroundImages() {
                 sortBy: { column: 'name', order: 'asc' },
             });
 
-        if (error) throw error;
+        if (error) {
+            console.error("Supabase Error:", error.message);
+            return;
+        }
 
-        if (data && data.length > 0) {
-            // สร้าง Full URL สำหรับแต่ละรูป
-            bgImages = data.map(file => {
+        if (!data || data.length === 0) {
+            console.warn("ไม่พบไฟล์ใน Bucket นี้ หรือยังไม่ได้ตั้งค่า Policy");
+            return;
+        }
+
+        console.log("พบไฟล์ทั้งหมด:", data.length, "ไฟล์");
+
+        bgImages = data
+            .filter(file => file.name !== '.emptyFolderPlaceholder') // กรองไฟล์ขยะออก
+            .map(file => {
                 const { data: urlData } = supabaseClient
                     .storage
                     .from(BUCKET_NAME)
                     .getPublicUrl(file.name);
-                console.log("ได้ URL รูปภาพ:", urlData.publicUrl); // เพิ่มบรรทัดนี้เพื่อเช็คใน Console
                 return urlData.publicUrl;
             });
-            
-            // เริ่มสลับรูปครั้งแรกหลังจากดึงข้อมูลสำเร็จ
-            rotateBackground(); 
-        }
+
+        console.log("รายการ URL ที่พร้อมใช้งาน:", bgImages);
+        rotateBackground(); 
+
     } catch (err) {
-        console.error("Error fetching backgrounds:", err.message);
+        console.error("System Error:", err);
     }
 }
 
