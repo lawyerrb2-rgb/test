@@ -298,21 +298,34 @@ function displayImage(url, msg) {
     }
 }
 
-function startTimer(expiryTime) {
-    clearInterval(countdownInterval);
-    countdownInterval = setInterval(() => {
+let timerInterval; // สร้างตัวแปรเก็บ Interval ไว้ข้างนอกเพื่อสั่งหยุดได้
+
+function startTimer(expiresAt) {
+    // 1. ล้าง Interval เก่าออกก่อน (กันมันทำงานซ้อนกันจนเวลาวิ่งมั่ว)
+    clearInterval(timerInterval);
+
+    const timerElement = document.getElementById('time-left');
+    const expireDate = new Date(expiresAt).getTime();
+
+    // 2. ตั้งการทำงานซ้ำทุก 1,000 มิลลิวินาที (1 วินาที)
+    timerInterval = setInterval(() => {
         const now = new Date().getTime();
-        const distance = new Date(expiryTime).getTime() - now;
+        const distance = expireDate - now;
 
+        // คำนวณ นาที และ วินาที
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        // 3. แสดงผลลงในหน้าจอ
         if (distance < 0) {
-            clearInterval(countdownInterval);
-            document.getElementById('time-left').innerText = "หมดเวลา";
-            updateQueue(); // ตรวจสอบคิวใหม่ทันที
-            return;
+            // ถ้าหมดเวลาแล้ว
+            clearInterval(timerInterval);
+            timerElement.innerText = "000";
+            updateQueue(); // สั่งให้เช็คคิวถัดไปทันทีเมื่อหมดเวลา
+        } else {
+            // แสดงผลแบบ 0:00 (เติมเลข 0 ข้างหน้าถ้าเลขหลักเดียว)
+            timerElement.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
         }
-
-        const secondsLeft = Math.floor(distance / 1000);
-        document.getElementById('time-left').innerText = `${secondsLeft} วินาที`;
     }, 1000);
 }
 
@@ -379,7 +392,8 @@ async function checkAndStartNextQueue() {
   }
 )
 .subscribe();
-
+// เช็คคิวใหม่จาก Database ทุกๆ 5-10 วินาที
+setInterval(updateQueue, 5000);
 
     </script>
 </body>
