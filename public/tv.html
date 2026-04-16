@@ -59,7 +59,7 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.2);
     padding: 20px 40px;
     border-radius: 25px;
-    display: flex;
+    display: block;
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 15px 35px rgba(0,0,0,0.5);
@@ -146,11 +146,6 @@ function displayImage(url, msg) {
     if (imgElement && url) {
         // ค่อยๆ จางออกก่อนเปลี่ยนรูป
         imgElement.style.opacity = 0;
-
-        imgElement.src = url;
-        imgElement.style.display = "block"; // 1; ค่อยๆ ปรากฏขึ้น // block แสดงรูปภาพ (เผื่อตอนแรกซ่อนไว้)
-        overlay.style.display = 'flex';    //โชว์แถบข้อมูล
-        msgElement.innerText = msg;
         
         setTimeout(() => {
             imgElement.src = url;
@@ -252,7 +247,7 @@ const channels = supabaseClient.channel('custom-all-channel')
 
 // ตั้งค่าว่า "ถ้าเกิดอะไรขึ้น ให้ทำอะไร" (ต้องทำก่อน .subscribe()) ---
 
-myChannel.on(
+.on(
   'postgres_changes',
   { event: 'UPDATE', schema: 'public', table: 'ads_display' }, // ตรวจสอบชื่อตารางให้ตรง
   (payload) => {
