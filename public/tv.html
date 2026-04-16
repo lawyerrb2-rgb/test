@@ -23,16 +23,6 @@
     background-color: #000; /* สีพื้นหลังระหว่างรอโหลดรูป */
     display: block
 }
-/* วิดีโอพื้นหลัง */
-#bg-video {
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    min-width: 100%;
-    min-height: 100%;
-    z-index: -1; /* อยู่ชั้นล่างสุด */
-    object-fit: cover;
-}
 
 body {
     margin: 0;
@@ -57,7 +47,7 @@ body {
 }
 /* แถบข้อมูลด้านล่าง (Glassmorphism) */
 .info-bar {
-    z-index: 20; /* อยู่บนสุด */
+    z-index: 100; /* อยู่บนสุด */
     position: absolute;
     bottom: 40px;
     left: 50%;
