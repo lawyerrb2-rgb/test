@@ -21,7 +21,7 @@
     transition: opacity 1.5s ease-in-out; /* ปรับเวลาให้นุ่มนวลขึ้น */
     filter: brightness(0.5); /* ปรับให้มืดลงเพื่อให้ข้อความโฆษณาอ่านง่าย */
     background-color: #000; /* สีพื้นหลังระหว่างรอโหลดรูป */
-    display: none
+    display: block
 }
 /* วิดีโอพื้นหลัง */
 #bg-video {
@@ -217,14 +217,16 @@ function rotateBackground() {
     const bgElement = document.getElementById('bg-image-default');
     if (!bgElement || bgImages.length === 0) return;
 
-    bgElement.style.opacity = 0; // จางออก
+    // 1. ลองใส่ URL รูปแรกเข้าไปเลย
+    bgElement.src = bgImages[currentBgIndex];
 
-    setTimeout(() => {
-        bgElement.src = bgImages[currentBgIndex];
-        bgElement.style.opacity = 1; // จางเข้า
-        
-        currentBgIndex = (currentBgIndex + 1) % bgImages.length;
-    }, 800);
+    // 2. บังคับให้แสดงผล (เผื่อ CSS ไปสั่งซ่อนไว้)
+    bgElement.style.display = 'block'; 
+    bgElement.style.opacity = '1';
+    bgElement.style.zIndex = '-1'; // มั่นใจว่าอยู่หลังสุด
+
+    // เลื่อนลำดับรูปถัดไป
+    currentBgIndex = (currentBgIndex + 1) % bgImages.length;
 }
 
 // 4. สั่งให้ทำงาน
