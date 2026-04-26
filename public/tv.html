@@ -169,11 +169,10 @@
             document.getElementById('timer-container').style.opacity = "1";
 
             if (imgElement.src !== ad.image_url) {
-                imgElement.src = ad.image_url;
-                imgElement.style.opacity = 1;
-                document.getElementById('ad-message').innerText = ad.message;
-                document.getElementById('info-overlay').style.display = 'flex';
-                startTimer(ad.expires_at);
+            imgElement.src = ad.image_url;
+            imgElement.style.opacity = 1;
+            document.getElementById('ad-message').innerText = ad.message;
+            startTimer(ad.expires_at);
             }
         } else {
             // 2. ถ้าไม่มีโฆษณาฉายอยู่ ให้เช็คว่ามีคิวใหม่ที่รอเริ่มไหม
