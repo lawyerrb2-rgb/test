@@ -54,7 +54,8 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 20px 40px;
             border-radius: 25px;
-            display: flex; /* เปลี่ยนจาก none เป็น flex ให้โชว์ตลอด */
+            display: flex !important; /* บังคับแสดงผลตลอดเวลา */
+            opacity: 1 !important;    /* บังคับไม่ให้จางหาย */
             justify-content: space-between;
             align-items: center;
             z-index: 20;
@@ -138,7 +139,8 @@
             if (distance <= 0) {
                 clearInterval(timerInterval);
                 document.getElementById('ad-image').style.opacity = 0;
-                document.getElementById('info-overlay').style.display = 'none';
+                //document.getElementById('info-overlay').style.display = 'none';
+                document.getElementById('timer-container').style.opacity = "0";
                 updateQueue(); // ตรวจหาคิวถัดไปทันที
             } else {
                 const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
@@ -210,10 +212,15 @@
             // แสดงผลทันทีโดยไม่ต้อง Refresh
             updateQueue();
         } else {
-        // --- ส่วนที่แก้ไข: เมื่อไม่มีโฆษณาเหลือเลย ---
-        document.getElementById('ad-image').style.opacity = 0; // ซ่อนรูปโฆษณา
-        document.getElementById('ad-message').innerText = "สแกน QR Code เพื่อส่งรูปขึ้นจอทีวีได้เลย!"; // คืนค่าข้อความ
-        document.getElementById('timer-container').style.opacity = "0"; // ซ่อนเวลานับถอยหลัง
+        // --- จุดที่ต้องแก้คือตรงนี้ครับ ---
+        document.getElementById('ad-image').style.opacity = 0; 
+        
+        // มั่นใจว่าไม่ได้สั่ง .style.display = 'none' ให้กับ info-overlay
+        const overlay = document.getElementById('info-overlay');
+        overlay.style.display = 'flex'; // บังคับให้เป็น flex เสมอ
+        
+        document.getElementById('ad-message').innerText = "สแกน QR Code เพื่อส่งรูปขึ้นจอทีวีได้เลย!";
+        document.getElementById('timer-container').style.opacity = "0"; // ซ่อนแค่ตัวเลขเวลา
     }
     }
 
