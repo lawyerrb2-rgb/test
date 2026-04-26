@@ -44,7 +44,7 @@
             .from('ads_display')
             .select('*')
             .eq('status', 'waiting_verify')
-            .order('created_at', { ascending: true });
+            .order('created_at', { ascending: false });
 
         if (error) {
             console.error(error);
@@ -52,7 +52,10 @@
         }
 
         if (data.length === 0) {
-            container.innerHTML = `<div class="bg-white p-10 rounded-xl shadow text-center text-gray-500">ไม่มีรายการรอตรวจสอบในขณะนี้</div>`;
+            container.innerHTML = `
+            <div class="bg-white p-10 rounded-xl shadow text-center text-gray-400">
+                ขณะนี้ไม่มีรายการรอตรวจสอบ...
+            </div>`;
             return;
         }
 
