@@ -135,28 +135,28 @@ h2 {
                 <label class="block text-gray-700 font-medium mb-3">3. เลือกแพ็กเกจเวลา</label>
                 <div class="grid grid-cols-2 gap-4">
                     <label class="cursor-pointer">
-                        <input type="radio" name="duration" value="30" data-price="20" class="peer hidden" checked onchange="updatePricePreview()">
+                        <input type="radio" name="duration" value="15" data-price="20" class="peer hidden" checked onchange="updatePricePreview()">
                         <div class="p-4 border-2 border-gray-100 rounded-xl text-center peer-checked:border-blue-600 peer-checked:bg-blue-50 transition shadow-sm">
                             <div class="font-bold text-lg">15 วินาที</div>
                             <div class="text-blue-600 font-semibold text-sm">20 บาท</div>
                         </div>
                     </label>
                     <label class="cursor-pointer">
-                        <input type="radio" name="duration" value="60" data-price="35" class="peer hidden" onchange="updatePricePreview()">
+                        <input type="radio" name="duration" value="30" data-price="35" class="peer hidden" onchange="updatePricePreview()">
                         <div class="p-4 border-2 border-gray-100 rounded-xl text-center peer-checked:border-blue-600 peer-checked:bg-blue-50 transition shadow-sm">
                             <div class="font-bold text-lg">30 วินาที</div>
                             <div class="text-blue-600 font-semibold text-sm">35 บาท</div>
                         </div>
                     </label>
                     <label class="cursor-pointer">
-                        <input type="radio" name="duration" value="30" data-price="20" class="peer hidden" checked onchange="updatePricePreview()">
+                        <input type="radio" name="duration" value="40" data-price="45" class="peer hidden" checked onchange="updatePricePreview()">
                         <div class="p-4 border-2 border-gray-100 rounded-xl text-center peer-checked:border-blue-600 peer-checked:bg-blue-50 transition shadow-sm">
                             <div class="font-bold text-lg">40 วินาที</div>
                             <div class="text-blue-600 font-semibold text-sm">45 บาท</div>
                         </div>
                     </label>
                     <label class="cursor-pointer">
-                        <input type="radio" name="duration" value="30" data-price="20" class="peer hidden" checked onchange="updatePricePreview()">
+                        <input type="radio" name="duration" value="60" data-price="65" class="peer hidden" checked onchange="updatePricePreview()">
                         <div class="p-4 border-2 border-gray-100 rounded-xl text-center peer-checked:border-blue-600 peer-checked:bg-blue-50 transition shadow-sm">
                             <div class="font-bold text-lg">60 วินาที</div>
                             <div class="text-blue-600 font-semibold text-sm">65 บาท</div>
@@ -208,16 +208,20 @@ h2 {
     let currentAdId = null;
 
     // --- 2. ฟังก์ชันอัปเดตราคา QR Code (ใช้เบอร์ของคุณ) ---
-    function updatePricePreview() {
+function updatePricePreview() {
         const selected = document.querySelector('input[name="duration"]:checked');
+        if (selected) {
         const price = selected.getAttribute('data-price');
         const duration = selected.value;
         const myPhone = "0946912619"; // <--- แก้เป็นเบอร์พร้อมเพย์ของคุณที่นี่
 
+        // อัปเดตตัวเลขในหน้าจอ
         document.getElementById('display-price').innerText = price;
         document.getElementById('display-duration').innerText = duration;
+        // อัปเดต QR Code
         document.getElementById('qr-image').src = `https://promptpay.io/${myPhone}/${price}.png`;
     }
+}
 function previewImage(input) {
     const preview = document.getElementById('image-preview');
     const placeholder = document.getElementById('upload-placeholder');
@@ -277,6 +281,8 @@ function previewImage(input) {
 
             if (insertErr) throw insertErr;
             currentAdId = insertData[0].id; // เก็บ ID ไว้ใช้อัปเดตสลิป
+            // เพิ่มบรรทัดนี้ลงไปเพื่อให้ตัวเลขในหน้าจ่ายเงินอัปเดตตามที่เลือกจริง
+            updatePricePreview();
 
             // 3.3 สลับหน้าจอ
             document.getElementById('upload-section').classList.add('hidden');
