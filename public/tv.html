@@ -54,12 +54,15 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 20px 40px;
             border-radius: 25px;
-            display: none; /* ซ่อนไว้ก่อนจนกว่าจะมีโฆษณา */
+            display: flex; /* เปลี่ยนจาก none เป็น flex ให้โชว์ตลอด */
             justify-content: space-between;
             align-items: center;
             z-index: 20;
+            transition: all 0.5s ease; /* เพิ่มความนุ่มนวลเวลาเปลี่ยนข้อความ */
         }
-
+        .timer-section {
+            transition: opacity 0.5s ease;
+        }
         #ad-message { font-size: 2.5rem; margin: 0; }
         #time-left { font-size: 3.5rem; font-weight: bold; color: var(--primary-color); }
 
@@ -81,14 +84,14 @@
     <img id="ad-image" src="" alt="Advertising">
 
     <div class="info-bar" id="info-overlay">
-        <div class="message-section">
-            <p id="ad-message">ยินดีต้อนรับ</p>
-        </div>
-        <div class="timer-section" style="text-align:right;">
-            <div style="font-size: 1rem; color: #aaa;">เหลือเวลา</div>
-            <span id="time-left">00:00</span>
-        </div>
+    <div class="message-section">
+        <p id="ad-message">สแกน QR Code เพื่อส่งรูปขึ้นจอทีวีได้เลย!</p>
     </div>
+    <div class="timer-section" id="timer-container" style="text-align:right; opacity: 0;">
+        <div style="font-size: 1rem; color: #aaa;">เหลือเวลา</div>
+        <span id="time-left">00:00</span>
+    </div>
+</div>
 
 <script>
     // 1. ตั้งค่า Supabase
@@ -161,6 +164,10 @@
         if (currentAds && currentAds.length > 0) {
             const ad = currentAds[0];
             const imgElement = document.getElementById('ad-image');
+
+            // แสดงส่วนเวลานับถอยหลัง
+            document.getElementById('timer-container').style.opacity = "1";
+
             if (imgElement.src !== ad.image_url) {
                 imgElement.src = ad.image_url;
                 imgElement.style.opacity = 1;
@@ -204,10 +211,11 @@
             // แสดงผลทันทีโดยไม่ต้อง Refresh
             updateQueue();
         } else {
-            // ไม่มีคิวเหลือเลย
-            document.getElementById('ad-image').style.opacity = 0;
-            document.getElementById('info-overlay').style.display = 'none';
-        }
+        // --- ส่วนที่แก้ไข: เมื่อไม่มีโฆษณาเหลือเลย ---
+        document.getElementById('ad-image').style.opacity = 0; // ซ่อนรูปโฆษณา
+        document.getElementById('ad-message').innerText = "สแกน QR Code เพื่อส่งรูปขึ้นจอทีวีได้เลย!"; // คืนค่าข้อความ
+        document.getElementById('timer-container').style.opacity = "0"; // ซ่อนเวลานับถอยหลัง
+    }
     }
 
     async function updateNextQueueLabel() {
