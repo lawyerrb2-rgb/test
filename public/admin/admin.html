@@ -134,7 +134,22 @@
     }
 
     // โหลดข้อมูลเมื่อเปิดหน้าเว็บ
-    fetchWaitingList();
+    // 1. โหลดข้อมูลครั้งแรกตอนเปิดหน้าเว็บ
+fetchWaitingList();
+
+// 2. ตั้งค่าให้ Supabase คอยแจ้งเตือนเมื่อมีการเปลี่ยนแปลงข้อมูลในตาราง ads_display
+const realtimeChannel = supabaseClient
+  .channel('public:ads_display') // ตั้งชื่อ channel อะไรก็ได้
+  .on(
+    'postgres_changes', 
+    { event: '*', schema: 'public', table: 'ads_display' }, 
+    (payload) => {
+      console.log('มีการเปลี่ยนแปลงข้อมูล!', payload);
+      // เมื่อมีการ Insert, Update หรือ Delete ให้สั่งโหลดรายการใหม่ทันที
+      fetchWaitingList();
+    }
+  )
+  .subscribe();
 </script>
 </body>
 </html>
