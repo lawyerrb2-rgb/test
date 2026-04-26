@@ -314,11 +314,14 @@ function previewImage(input) {
         const file = document.getElementById('slipInput').files[0];
         const btn = document.getElementById('btn-confirm');
 
+        // 1. ตรวจสอบว่ามีไฟล์สลิปหรือไม่
         if (!file) {
-            alert("กรุณาแนบสลิปเงินเพื่อยืนยันครับ");
-            return;
+            // หากไม่มีไฟล์ ให้แสดงข้อความเตือนและหยุดการทำงานทันที
+            alert("กรุณาแนบสลิปโอนเงินก่อนยืนยันครับ");
+            return; // จบการทำงาน ไม่ส่งข้อมูลต่อ
         }
 
+        // --- หากมีไฟล์สลิปแล้ว จะเริ่มทำขั้นตอนต่อไปนี้ ---
         btn.disabled = true;
         btn.innerText = "กำลังส่งสลิป...";
 
