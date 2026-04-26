@@ -21,6 +21,18 @@
             color: var(--text-white);
         }
 
+/* เอฟเฟกต์ Glassmorphism ให้ดูทันสมัย */
+#qr-side-card .bg-white\/90 {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+#qr-side-card {
+    position: fixed;
+    right: 2.5rem; /* ระยะห่างจากขอบขวา (ประมาณ 40px) */
+    top: 50%;      /* อยู่กึ่งกลางความสูงจอ */
+    transform: translateY(-50%); /* ดึงตัวมันเองขึ้นไปครึ่งหนึ่งเพื่อให้กลางเป๊ะ */
+    z-index: 20; /* ให้อยู่บนสุดเสมอ */
+}
+
         /* รูปพื้นหลังที่สลับไปมา */
         #bg-image-default {
             position: fixed;
@@ -38,7 +50,7 @@
             top: 0; left: 0;
             width: 100vw; height: 100vh;
             object-fit: contain;
-            z-index: 10;
+            z-index: 30;
             opacity: 0;
             transition: opacity 0.8s ease-in-out;
         }
@@ -58,7 +70,7 @@
             opacity: 1 !important;    /* บังคับไม่ให้จางหาย */
             justify-content: space-between;
             align-items: center;
-            z-index: 20;
+            z-index: 40;
             transition: all 0.5s ease; /* เพิ่มความนุ่มนวลเวลาเปลี่ยนข้อความ */
         }
         .timer-section {
@@ -74,7 +86,7 @@
             padding: 10px 20px;
             border-radius: 50px;
             font-size: 1.2rem;
-            z-index: 20;
+            z-index: 40;
         }
     </style>
 </head>
@@ -84,10 +96,29 @@
     <div id="next-queue-bar">คิวถัดไป: <span id="next-msg">ว่าง</span></div>
     <img id="ad-image" src="" alt="Advertising">
 
-    <div class="info-bar" id="info-overlay">
-    <div class="message-section">
-        <p id="ad-message">สแกน QR Code เพื่อส่งรูปขึ้นจอทีวีได้เลย!</p>
+<div id="qr-side-card" class="fixed right-10 top-1/2 -translate-y-1/2 z-20 transition-all duration-500">
+    <div class="bg-white/90 backdrop-blur-sm p-5 rounded-3xl shadow-2xl border border-white/50 text-center flex flex-col items-center">
+        
+        <p class="text-gray-800 font-bold mb-3 text-lg leading-tight">
+            สแกนส่งรูป<br><span class="text-blue-600 text-sm">ขึ้นจอนี้!</span>
+        </p>
+
+        <div class="bg-white p-2 rounded-2xl shadow-inner">
+            <img id="qr-main" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=URL_หน้า_INDEX_ของคุณ" 
+                 alt="QR Code" class="w-40 h-40 md:w-48 md:h-48">
+        </div>
+
+        <div class="mt-4 bg-blue-600 text-white px-4 py-1 rounded-full text-xs font-medium animate-bounce">
+            Scan Me
+        </div>
     </div>
+</div>
+
+<div class="info-bar" id="info-overlay">
+    <div class="message-section">
+        <p id="ad-message"> </p>   
+    </div>
+            
     <div class="timer-section" id="timer-container" style="text-align:right; opacity: 0;">
         <div style="font-size: 1rem; color: #aaa;">เหลือเวลา</div>
         <span id="time-left">00:00</span>
@@ -107,7 +138,7 @@
     let timerInterval;
 
     // --- ฟังก์ชันจัดการรูปพื้นหลัง ---
-    async function fetchBackgroundImages() {
+async function fetchBackgroundImages() {
         const { data, error } = await supabaseClient.storage.from(BUCKET_NAME).list();
         if (data) {
             bgImages = data.map(file => supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(file.name).data.publicUrl);
@@ -115,7 +146,7 @@
         }
     }
 
-    function rotateBackground() {
+function rotateBackground() {
         const bgElement = document.getElementById('bg-image-default');
         if (bgImages.length > 0) {
             bgElement.style.opacity = 0;
@@ -127,8 +158,35 @@
         }
     }
 
+async function displayAd(ad) {
+    const mainImg = document.getElementById('ad-image');
+
+    // 1. เตรียมรูป (สั่งให้โหลดแต่ยังไม่นับเวลา)
+    mainImg.src = ad.image_url;
+
+    // 2. สร้าง Promise รอให้รูปโหลดเสร็จสมบูรณ์ 100%
+    await new Promise((resolve) => {
+        mainImg.onload = () => {
+            console.log("รูปโหลดเสร็จแล้ว เริ่มแสดงผลและนับเวลา");
+            resolve();
+        };
+        // กรณีรูปเสีย หรือโหลดไม่ขึ้น ให้ข้ามไปเลยหลังจาก 5 วินาที เพื่อไม่ให้ระบบค้าง
+        setTimeout(resolve, 5000); 
+    });
+
+    // 3. เมื่อรูปโหลดเสร็จแล้ว ค่อยสั่งโชว์รูป
+    mainImg.classList.remove('hidden');
+
+    // 4. เริ่มนับเวลาตามจริง (วินาทีจะเป๊ะขึ้น เพราะรูปมาตั้งรอแล้ว)
+    await new Promise(resolve => setTimeout(resolve, ad.duration_minutes * 1000));
+
+    // 5. จบการแสดงผล
+    mainImg.classList.add('hidden');
+    mainImg.src = ""; // ล้างค่าเดิมทิ้ง
+}
+
     // --- ฟังก์ชันจัดการนาฬิกาถอยหลัง ---
-    function startTimer(expiresAt) {
+function startTimer(expiresAt) {
         clearInterval(timerInterval);
         const expireDate = new Date(expiresAt).getTime();
 
@@ -151,7 +209,7 @@
     }
 
     // --- ฟังก์ชันหลักในการคุมคิว ---
-    async function updateQueue() {
+async function updateQueue() {
         const nowIso = new Date().toISOString();
 
         // 1. เช็คว่ามีโฆษณาที่กำลังฉายอยู่ไหม
@@ -185,7 +243,7 @@
         updateNextQueueLabel();
     }
 
-    async function checkAndStartNextQueue() {
+async function checkAndStartNextQueue() {
         const { data: nextInLine } = await supabaseClient
             .from('ads_display')
             .select('*')
@@ -220,11 +278,13 @@
         overlay.style.display = 'flex'; // บังคับให้เป็น flex เสมอ
         
         document.getElementById('ad-message').innerText = "สแกน QR Code เพื่อส่งรูปขึ้นจอทีวีได้เลย!";
+        
         document.getElementById('timer-container').style.opacity = "0"; // ซ่อนแค่ตัวเลขเวลา
     }
     }
 
-    async function updateNextQueueLabel() {
+
+async function updateNextQueueLabel() {
         const { data } = await supabaseClient
             .from('ads_display')
             .select('message')

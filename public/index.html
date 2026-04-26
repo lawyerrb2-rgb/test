@@ -108,11 +108,11 @@ h2 {
             <img src="https://zossrpbtdszdntgbqcfe.supabase.co/storage/v1/object/public/assets/icon2.ico" alt="Logo" id="my-logo">
         </div>
         <h1>โรงน้ำแข็งหลอด ดีเค ระยอง</h1>
-        <h2>🚀 ส่งโฆษณาขึ้นจอ TV</h2>
+        <h2>🚀 ส่งรูป แจกวาป ขึ้นจอ</h2>
 
         <div id="upload-section" class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
             <div class="mb-6">
-                    <label class="block text-gray-700 font-medium mb-3">1. เลือกรูปภาพโฆษณา</label>
+                    <label class="block text-gray-700 font-medium mb-3">1. เลือกรูปภาพ แนะนำไม่ควรเกิน 2 MB</label>
                 <label for="imageInput" class="relative flex flex-col items-center justify-center w-full h-44 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition overflow-hidden">
     
                     <div id="upload-placeholder" class="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4">
@@ -126,9 +126,20 @@ h2 {
                 </label>
             </div>
             
+<div class="mt-4 p-3 bg-red-50 rounded-lg border border-red-100">
+    <div class="flex gap-2">
+        <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        </svg>
+        <p class="text-[11px] text-red-600 leading-tight">
+            <strong>คำเตือน:</strong> ห้ามใช้ภาพโป๊, ภาพลิขสิทธิ์ หรือภาพที่ไม่เหมาะสม ระบบจะทำการตรวจสอบสลิปและเนื้อหาก่อนขึ้นจอ หากทำผิดกฎแอดมินขอไม่ดำเนินการโชว์รูปและไม่คืนเงิน
+        </p>
+    </div>
+</div>
+
             <div class="mb-6">
                 <label class="block text-gray-700 font-medium mb-2">2. ข้อความสั้นๆ ใต้รูป</label>
-                <input type="text" id="messageInput" placeholder="เช่น โปรโมชั่นพิเศษวันนี้!" class="w-full border-2 border-gray-100 p-3 rounded-xl focus:border-blue-500 outline-none transition">
+                <input type="text" id="messageInput" placeholder="จำกัด 60 ตัวอักษร" class="w-full border-2 border-gray-100 p-3 rounded-xl focus:border-blue-500 outline-none transition">
             </div>
 
             <div class="mb-8">
@@ -182,7 +193,16 @@ h2 {
                     <img id="qr-image" src="" class="w-52 h-52">
                 </div>
             </div>
-
+        <div class="mt-4 p-3 bg-red-50 rounded-lg border border-red-100">
+            <div class="flex gap-2">
+                <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                <p class="text-[11px] text-red-600 leading-tight">
+                    <strong>คำเตือน:</strong> ระบบจะทำการตรวจสอบสลิปก่อนขึ้นจอ หากไม่มีการชำระเงินจริง ขอไม่ดำเนินการโชว์รูปและไม่คืนเงิน
+                 </p>
+            </div>
+        </div>
             <div class="text-left mb-6">
                 <label for="slipInput" class="block w-full border-2 border-dashed border-gray-200 rounded-lg p-2 cursor-pointer hover:bg-gray-50">
                     <img id="slip-preview" src="" class="hidden w-full h-32 object-contain mb-2">
@@ -257,7 +277,7 @@ function previewImage(input) {
         }
 
         btn.disabled = true;
-        btn.innerText = "กำลังอัปโหลดรูปโฆษณา...";
+        btn.innerText = "กำลังอัปโหลดรูป...";
 
         try {
             // 3.1 อัปโหลดรูปโฆษณาไปที่ Bucket 'ads'
@@ -344,7 +364,7 @@ function previewImage(input) {
 
             if (updateErr) throw updateErr;
 
-            alert("ส่งสลิปเรียบร้อย! รอแอดมินตรวจสอบโฆษณาของคุณสักครู่นะครับ");
+            alert("ส่งสลิปเรียบร้อย! รอแอดมินตรวจสอบรูปภาพของคุณสักครู่นะครับ");
             location.reload(); // รีเฟรชกลับหน้าแรกเพื่อรับงานใหม่
 
         } catch (err) {
