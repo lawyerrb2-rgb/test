@@ -57,28 +57,42 @@
 
         /* แถบข้อมูล */
         .info-bar {
-            position: absolute;
-            bottom: 40px; left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            background: var(--overlay-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 20px 40px;
-            border-radius: 25px;
-            display: flex !important; /* บังคับแสดงผลตลอดเวลา */
-            opacity: 1 !important;    /* บังคับไม่ให้จางหาย */
-            justify-content: center;
-            align-items: center;
-            z-index: 40;
-            transition: all 0.5s ease; /* เพิ่มความนุ่มนวลเวลาเปลี่ยนข้อความ */
-        }
-        .timer-section {
-            transition: opacity 0.5s ease;
-        }
-        #ad-message {
-    flex-grow: 1;      /* ให้ข้อความขยายตัวเต็มที่ */
-    text-align: center; /* แล้วสั่งให้อยู่กลาง */
+    /* 1. ใช้ absolute เหมือนเดิมเพื่อคุมตำแหน่งบนจอ */
+    position: absolute !important; 
+    bottom: 40px; 
+    left: 50%;
+    transform: translateX(-50%);
+    
+    /* 2. การจัดวางภายใน */
+    width: 90%;
+    height: 100px; /* กำหนดความสูงที่แน่นอนเพื่อให้ตัวหนังสืออยู่กลางแนวตั้งง่ายขึ้น */
+    display: flex !important;
+    justify-content: center; /* ดันข้อความไปตรงกลาง */
+    align-items: center;     /* จัดกลางแนวตั้ง */
+    
+    /* 3. ตกแต่งความสวยงาม */
+    background: var(--overlay-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 0 40px;
+    border-radius: 25px;
+    z-index: 40;
+    transition: all 0.5s ease;
+}
+.timer-section {
+    /* ใช้ absolute เพื่อแยกตัวเลขออกมาลอยทางขวา โดยอ้างอิงจาก .info-bar */
+    position: absolute; 
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: opacity 0.5s ease;
+}
+#ad-message { 
+    font-size: 2.5rem; 
+    margin: 0; 
+    text-align: center;
+    color: white;
+    width: 100%; /* จำกัดความกว้างข้อความไม่ให้ไปทับตัวเลข */
 }
         #time-left { font-size: 3.5rem; font-weight: bold; color: var(--primary-color); }
 
