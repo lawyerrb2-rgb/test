@@ -6,7 +6,9 @@
     <title>ส่งรูปขึ้นจอ TV By M Group</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500&display=swap" rel="stylesheet">
+    
     <style>
             :root {
     --primary-color: #4f46e5;
@@ -329,6 +331,27 @@ function previewImage(input) {
         reader.readAsDataURL(input.files[0]);
     }
 }
+// ฟังก์ชันช่วยสแกน QR (วางไว้ด้านบนหรือล่าง uploadSlip ก็ได้)
+async function scanQRCode(file) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+                resolve(code ? code.data : null);
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
     // --- 4. ฟังก์ชันอัปโหลดสลิปเงิน ---
     async function uploadSlip() {
         const file = document.getElementById('slipInput').files[0];
@@ -343,29 +366,46 @@ function previewImage(input) {
 
         // --- หากมีไฟล์สลิปแล้ว จะเริ่มทำขั้นตอนต่อไปนี้ ---
         btn.disabled = true;
-        btn.innerText = "กำลังส่งสลิป...";
+        btn.innerText = "กำลังตรวจสอบสลิป...";
 
         try {
-            // 4.1 อัปโหลดสลิปไปที่ Bucket 'slips'
-            const fileName = `slip_${Date.now()}_${currentAdId}.png`;
-            const { data: upData, error: upErr } = await supabaseClient.storage.from('slips').upload(fileName, file);
+            // 1. สแกน QR Code จากสลิป
+        const transRef = await scanQRCode(slipFile);
+
+        if (!transRef) {
+            alert("❌ ไม่พบ QR Code บนสลิป กรุณาใช้สลิปตัวจริงที่มี QR สำหรับตรวจสอบ");
+            btn.disabled = false;
+            btn.innerText = "ยืนยันการส่งสลิป";
+            return;
+        }
+            // 3. อัปโหลดสลิปไปที่ Bucket 'slips'
+            // เปลี่ยนชื่อไฟล์ให้มี transRef ป้องกันชื่อซ้ำใน Storage ด้วย
+            const fileName = `slip_${Date.now()}_${transRef.substring(0, 10)}.png`;
+            const { data: upData, error: upErr } = await supabaseClient.storage.from('slips').upload(fileName, slipFile);
             if (upErr) throw upErr;
 
             const { data: urlData } = supabaseClient.storage.from('slips').getPublicUrl(fileName);
 
-            // 4.2 อัปเดตข้อมูลสถานะให้ Admin ตรวจสอบ
+            // 4. อัปเดตข้อมูลและเช็คความซ้ำ (trans_ref)
             const { error: updateErr } = await supabaseClient
                 .from('ads_display')
                 .update({ 
                     slip_url: urlData.publicUrl, 
+                    trans_ref: transRef, // บันทึกค่าที่สแกนได้
                     status: 'waiting_verify' 
                 })
                 .eq('id', currentAdId);
 
-            if (updateErr) throw updateErr;
+            if (updateErr) {
+                // ถ้า Supabase ฟ้องว่า Unique Constraint ละเมิด (Error Code 23505)
+                if (updateErr.code === '23505') {
+                    throw new Error("สลิปนี้ถูกใช้งานไปแล้ว โปรดใช้สลิปใหม่ครับ");
+                }
+                throw updateErr;
+            }
 
-            alert("ส่งสลิปเรียบร้อย! รอแอดมินตรวจสอบรูปภาพของคุณสักครู่นะครับ");
-            location.reload(); // รีเฟรชกลับหน้าแรกเพื่อรับงานใหม่
+            alert("✅ ตรวจสอบสลิปเบื้องต้นสำเร็จ! รอแอดมินอนุมัติสักครู่นะครับ");
+            location.reload(); 
 
         } catch (err) {
             alert("เกิดข้อผิดพลาด: " + err.message);
@@ -373,6 +413,45 @@ function previewImage(input) {
             btn.innerText = "ยืนยันการส่งสลิป";
         }
     }
+
+    // ฟังก์ชั่นตรวจสอบสลิป
+async function verifySlipAutomatically(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const image = new Image();
+            image.onload = async () => {
+                // สร้าง Canvas เพื่ออ่านพิกเซลของรูป
+                const canvas = document.createElement('canvas');
+                canvas.width = image.width;
+                canvas.height = image.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(image, 0, 0);
+                
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+                if (code) {
+                    // ข้อมูลที่อ่านได้จาก QR Code บนสลิป
+                    const slipData = code.data; 
+                    
+                    // ตรวจสอบกับ Database ว่าสลิปนี้ (slipData) เคยถูกใช้หรือยัง
+                    const isUsed = await checkDuplicateSlip(slipData);
+                    
+                    if (!isUsed) {
+                        resolve({ success: true, ref: slipData });
+                    } else {
+                        reject("สลิปนี้ถูกใช้งานไปแล้ว!");
+                    }
+                } else {
+                    reject("ไม่พบ QR Code ในรูปภาพ กรุณาใช้สลิปที่มี QR Code");
+                }
+            };
+            image.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
 </script>
 </body>
 </html>
