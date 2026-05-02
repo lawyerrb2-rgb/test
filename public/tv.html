@@ -68,7 +68,7 @@
             border-radius: 25px;
             display: flex !important; /* บังคับแสดงผลตลอดเวลา */
             opacity: 1 !important;    /* บังคับไม่ให้จางหาย */
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             z-index: 40;
             transition: all 0.5s ease; /* เพิ่มความนุ่มนวลเวลาเปลี่ยนข้อความ */
@@ -76,7 +76,12 @@
         .timer-section {
             transition: opacity 0.5s ease;
         }
-        #ad-message { font-size: 2.5rem; margin: 0; }
+        #ad-message { 
+    font-size: 2.5rem; 
+    margin: 0; 
+    text-align: center; /* บังคับให้ตัวอักษรอยู่กลาง */
+    width: 100%;        /* ให้กินพื้นที่เต็มความกว้างเพื่ออ้างอิงจุดศูนย์กลาง */
+}
         #time-left { font-size: 3.5rem; font-weight: bold; color: var(--primary-color); }
 
         #next-queue-bar {
