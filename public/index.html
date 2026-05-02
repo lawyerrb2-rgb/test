@@ -354,15 +354,17 @@ async function scanQRCode(file) {
 }
     // --- 4. ฟังก์ชันอัปโหลดสลิปเงิน ---
     async function uploadSlip() {
-        const file = document.getElementById('slipInput').files[0];
-        const btn = document.getElementById('btn-confirm');
+        // ดึงค่าไฟล์มาจาก Input ก่อนเป็นอันดับแรก
+    const slipInput = document.getElementById('slipInput');
+    const slipFile = slipInput.files[0]; 
+    const btn = document.getElementById('btn-confirm');
 
         // 1. ตรวจสอบว่ามีไฟล์สลิปหรือไม่
-        if (!file) {
-            // หากไม่มีไฟล์ ให้แสดงข้อความเตือนและหยุดการทำงานทันที
-            alert("กรุณาแนบสลิปโอนเงินก่อนยืนยันครับ");
-            return; // จบการทำงาน ไม่ส่งข้อมูลต่อ
-        }
+        // เช็คว่ามีไฟล์ไหม
+    if (!slipFile) {
+        alert("⚠️ กรุณาแนบรูปสลิปก่อนครับ");
+        return;
+    }
 
         // --- หากมีไฟล์สลิปแล้ว จะเริ่มทำขั้นตอนต่อไปนี้ ---
         btn.disabled = true;
