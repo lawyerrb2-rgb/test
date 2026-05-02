@@ -93,7 +93,7 @@ async function fetchWaitingList() {
                     <!-- ส่วนของ Timer แสดงผลบนหน้าจอ -->
                     <div id="timer-box-${item.id}" class="mt-4 p-2 bg-blue-50 border border-blue-100 rounded-lg text-center">
                         <p class="text-xs text-blue-600 font-bold mb-1 uppercase">จะอนุมัติอัตโนมัติภายใน</p>
-                        <span id="countdown-${item.id}" class="text-xl font-black text-blue-700">10</span>
+                        <span id="countdown-${item.id}" class="text-xl font-black text-blue-700">20</span>
                         <span class="text-blue-700 font-bold">วินาที</span>
                     </div>
                     
@@ -116,7 +116,7 @@ async function fetchWaitingList() {
 
 // 3. ฟังก์ชันเริ่มนับถอยหลัง
 function startTimer(id) {
-    let timeLeft = 10;
+    let timeLeft = 20;
     const countdownEl = document.getElementById(`countdown-${id}`);
 
     const timer = setInterval(() => {
